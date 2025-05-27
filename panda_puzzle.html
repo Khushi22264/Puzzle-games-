@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panda Puzzle</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f5f5f5; }
+    h1 { margin-top: 20px; }
+    #puzzle {
+      width: 384px;
+      height: 384px;
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .tile {
+      width: 128px;
+      height: 128px;
+      background-image: url('panda.jpg');
+      background-size: 384px 384px;
+      cursor: pointer;
+    }
+    .empty { background: #ccc; cursor: default; }
+  </style>
+</head>
+<body>
+  <h1>Panda Sliding Puzzle</h1>
+  <div id="puzzle"></div>
+  <audio id="clickSound" src="cartoon-jump.mp3"></audio>
+  <p><small>Add 'cartoon-jump.mp3' sound manually in this folder for sound effects.</small></p>
+  <script>
+    const puzzle = document.getElementById('puzzle');
+    const sound = document.getElementById('clickSound');
+
+    const positions = [...Array(9).keys()];
+    shuffle(positions);
+
+    function createTiles() {
+      puzzle.innerHTML = '';
+      positions.forEach((pos, i) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        if (pos === 8) {
+          tile.classList.add('empty');
+        } else {
+          const x = pos % 3;
+          const y = Math.floor(pos / 3);
+          tile.style.backgroundPosition = `-${x * 128}px -${y * 128}px`;
+        }
+        tile.dataset.index = i;
+        puzzle.appendChild(tile);
+      });
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    puzzle.addEventListener('click', (e) => {
+      const tiles = Array.from(puzzle.children);
+      const index = +e.target.dataset.index;
+      const emptyIndex = positions.indexOf(8);
+      const row = Math.floor(index / 3), col = index % 3;
+      const erow = Math.floor(emptyIndex / 3), ecol = emptyIndex % 3;
+      if (Math.abs(row - erow) + Math.abs(col - ecol) === 1) {
+        [positions[index], positions[emptyIndex]] = [positions[emptyIndex], positions[index]];
+        sound.play();
+        createTiles();
+      }
+    });
+
+    createTiles();
+  </script>
+</body>
+</html>
